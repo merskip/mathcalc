@@ -3,9 +3,14 @@
 #include <stack>
 #include <iterator>
 #include <sstream>
+#include <unistd.h>
 
 #define APP_NAME "MathCalc"
-#define APP_VERSION "0.0.0"
+#ifndef APP_VERSION
+#define APP_VERSION "UNKNOWN"
+#pragma message "Undefined app version, use -DAPP_VERSION=\"version\""
+#endif
+#define APP_BUILD_DATE __DATE__ " " __TIME__
 #define PROMPT " >> "
 
 #include "Exception.hpp"
@@ -28,7 +33,7 @@ int main(int argc, char *argv[]) {
     RunningMode runningMode = argc >= 2 ? ONE_EXPRESSION : LOOP_EXPRESSION;
 
     if (runningMode == LOOP_EXPRESSION) {
-        std::cout << APP_NAME << " v" << APP_VERSION << std::endl;
+        std::cout << APP_NAME << " " << APP_VERSION << std::endl;
         std::cout << std::endl;
         std::cout << "Wprowadź wyrażenie do obliczenia:" << std::endl;
     } else {
@@ -36,16 +41,28 @@ int main(int argc, char *argv[]) {
         try {
             CalculatorRPN::Result result = computeExpression(rawInput);
 
+            char hostname[255];
+            gethostname(hostname, 255);
+
             std::string json = encodeJson({
-                    {"rawInput", result.input.rawInput},
-                    {"tokens", toString(result.input.tokens)},
-                    {"rpn", toString(result.input.rpn)},
-                    {"input_latex", result.input_latex},
-                    {"result", result.result.toPlainText()},
-                    {"result_decimal", result.result.toDecimal()},
-                    {"result_latex", result.result.toLatexMath()},
+                    {"system", encodeJson({
+                            {"version", APP_VERSION},
+                            {"build_date", APP_BUILD_DATE},
+                            {"hostname", std::string(hostname)}
+                    })},
+                    {"input", encodeJson({
+                            {"raw", result.input.rawInput},
+                            {"tokens", toString(result.input.tokens)},
+                            {"rpn", toString(result.input.rpn)},
+                            {"as_latex", result.input_latex}
+                    })},
+                    {"result", encodeJson({
+                            {"plain_text", result.result.toPlainText()},
+                            {"decimal", result.result.toDecimal()},
+                            {"as_latex", result.result.toLatexMath()}
+                    })}
             });
-            std::cout << json;
+            std::cout << json << std::endl;
         } catch (Exception &e) {
             std::string json = encodeJson({
                     {"error", e.getMessage()},
@@ -102,8 +119,13 @@ std::string encodeJson(std::vector<std::pair<std::string, std::string>> data) {
     json << "{" << std::endl;
     int i = 0;
     for (const auto &item : data) {
-        json << ind << "\"" << item.first << "\": "
-                << "\"" << replaceString(item.second, "\\", "\\\\") << "\"";
+        json << ind << "\"" << item.first << "\": ";
+
+        if (item.second[0] == '{') {
+            json << replaceString(item.second, "\n", "\n" + ind);
+        }  else {
+            json << "\"" << replaceString(item.second, "\\", "\\\\") << "\"";
+        }
 
         if (i < data.size() - 1)
             json << ", " << std::endl;
