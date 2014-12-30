@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "RationalNumber.hpp"
+#include "Operator.hpp"
 
 class CalculatorRPN {
 public:
@@ -19,4 +20,8 @@ public:
     };
 
     static Result compute(Input &input);
+
+    static std::string generateLatexMath(std::vector<std::string> rpn);
+    static std::string toLatexMath(const std::string &leftExp, const std::string &rightExp,
+            const Operator::OpType &opType, bool useLeftBrackets, bool useRightBrackets);
 };

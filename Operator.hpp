@@ -6,6 +6,7 @@
 class Operator {
 public:
     enum OpType {
+        None,
         Adding,
         Subtracting,
         Multiplying,
@@ -24,7 +25,7 @@ public:
 
     RationalNumber getResult();
 
-    static std::string toLatexMath(const std::string &leftExp, const std::string &rightExp, const OpType &opType);
+
     static bool isSingleLatexExpression(const std::string expression);
     static RationalNumber getRationalNumberLatexMath(const std::string &latexMath);
 

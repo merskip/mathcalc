@@ -24,80 +24,6 @@ RationalNumber Operator::getResult() {
     }
 }
 
-std::string Operator::toLatexMath(const std::string &leftExp, const std::string &rightExp, const OpType &opType) {
-    std::string exp = "";
-
-    bool singleLeft = isSingleLatexExpression(leftExp);
-    bool singleRight = isSingleLatexExpression(rightExp);
-    RationalNumber rightParam;
-
-    switch (opType) {
-        case Adding:
-        case Subtracting:
-            exp += singleLeft ? leftExp : "\\left(" + leftExp + "\\right)";
-            exp += " " + opTypeToString(opType) + " ";
-            exp += singleRight ? rightExp : "\\left(" + rightExp + "\\right)";
-            break;
-
-        case Multiplying:
-            exp += singleLeft ? leftExp : "\\left(" + leftExp + "\\right)";
-            exp += " \\times ";
-            exp += singleRight ? rightExp : "\\left(" + rightExp + "\\right)";
-            break;
-
-        case Dividing:
-            if (singleLeft && singleRight)
-                exp = "\\frac{" + leftExp + "}{" + rightExp + "}";
-            else
-                exp = "\\dfrac{" + leftExp + "}{" + rightExp + "}";
-            break;
-
-        case Exponentiation:
-            rightParam = getRationalNumberLatexMath(rightExp);
-            if (!rightParam.isIndeterminate() && !rightParam.isInteger()) {
-
-                int num = rightParam.getNumerator();
-                int den = rightParam.getDenominator();
-
-                if (num != 1) {
-                    exp += ParserRPN::isNumber(leftExp) ? leftExp : "\\left(" + leftExp + "\\right)";
-                    exp += "^{" + rightExp + "}";
-                } else {
-                    int &root = den;
-                    if (root != 2) {
-                        exp += "\\sqrt[" + std::to_string(root) + "]";
-                        exp += "{" + leftExp + "}";
-                    } else {
-                        exp += "\\sqrt[]";
-                        exp += "{" + leftExp + "}";
-                    }
-                }
-            } else {
-                exp += ParserRPN::isNumber(leftExp) ? leftExp : "\\left(" + leftExp + "\\right)";
-                exp += "^{" + rightExp + "}";
-            }
-            break;
-
-        default:
-            assert(false);
-    }
-
-    return exp;
-}
-
-bool Operator::isSingleLatexExpression(const std::string expression) {
-    if (ParserRPN::isNumber(expression))
-        return true;
-
-    try {
-        std::smatch match;
-        std::regex regex("^\\S+(?:\\{\\S+?\\})+$");
-        return std::regex_search(expression, match, regex);
-    } catch (std::regex_error &e) { // Występują problemy na Raspberry Pi (arm)
-        return false;
-    }
-}
-
 RationalNumber Operator::getRationalNumberLatexMath(const std::string &latexMath) {
     if (ParserRPN::isNumber(latexMath))
         return ParserRPN::toRationalNumber(latexMath);
@@ -124,6 +50,7 @@ Operator::OpType Operator::getOpType(const std::string &s) {
 
 std::string Operator::opTypeToString(const Operator::OpType &opType) {
     switch (opType) {
+        case None: return "∅";
         case Adding: return "+";
         case Subtracting: return "-";
         case Multiplying: return "*";
