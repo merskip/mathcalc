@@ -5,18 +5,14 @@
 #include <sstream>
 #include <unistd.h>
 
-#define APP_NAME "MathCalc"
-#ifndef APP_VERSION
-#define APP_VERSION "UNKNOWN"
-#pragma message "Undefined app version, use -DAPP_VERSION=\"version\""
-#endif
-#define APP_BUILD_DATE __DATE__ " " __TIME__
-#define PROMPT " >> "
-
 #include "Exception.hpp"
+#include "Version.hpp"
 #include "RationalNumber.hpp"
 #include "ParserRPN.hpp"
 #include "CalculatorRPN.hpp"
+
+#define APP_NAME "MathCalc"
+#define PROMPT " >> "
 
 CalculatorRPN::Result computeExpression(const std::string &rawInput);
 std::string encodeJson(std::vector<std::pair<std::string, std::string>> data);

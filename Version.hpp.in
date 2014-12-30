@@ -1,0 +1,4 @@
+#pragma once
+
+#define APP_VERSION "@GIT_VERSION@"
+#define APP_BUILD_DATE "@BUILD_DATE@"

@@ -1,0 +1,14 @@
+exec_program(
+    "git" "@CMAKE_CURRENT_SOURCE_DIR@"
+    ARGS "describe --tags"
+    OUTPUT_VARIABLE GIT_VERSION
+)
+
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S UTC" UTC)
+
+message(STATUS "${GIT_VERSION} (${BUILD_DATE})")
+
+configure_file(
+    "@CMAKE_CURRENT_SOURCE_DIR@/Version.hpp.in"
+    "@CMAKE_CURRENT_BINARY_DIR@/Version.hpp"
+)
