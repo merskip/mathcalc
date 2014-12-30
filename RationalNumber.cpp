@@ -153,9 +153,9 @@ std::string RationalNumber::toLatexMath() const {
         if (numerator < 0) {
             n = std::to_string(abs(numerator));
             d = std::to_string(abs(denominator));
-            return "-\\frac{" + n + "}{" + d + "}";
+            return "-\\dfrac{" + n + "}{" + d + "}";
         } else {
-            return "\\frac{" + n + "}{" + d + "}";
+            return "\\dfrac{" + n + "}{" + d + "}";
         }
     } else {
         return std::to_string(numerator);
