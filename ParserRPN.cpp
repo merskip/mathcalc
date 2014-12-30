@@ -88,7 +88,7 @@ std::vector<std::string> ParserRPN::parseRPN() {
 }
 
 std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expression) {
-    std::vector<std::string> tokens;
+    std::list<std::string> tokens;
     std::string str = "";
 
     for (int i = 0; i < (int) expression.length(); ++i) {
@@ -115,7 +115,27 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
     if (!str.empty())
         tokens.push_back(str);
 
-    return tokens;
+    std::list<std::string>::iterator iter = tokens.begin();
+    while (iter != tokens.end()) {
+        std::string token = *iter;
+
+        if (token == "/") {
+            std::list<std::string>::iterator left = std::prev(iter, 1);
+            std::list<std::string>::iterator right = std::next(iter, 1);
+
+            std::string leftToken = *left;
+            std::string rightToken = *right;
+
+            if (isNumber(leftToken) && isNumber(rightToken)) {
+                iter = tokens.erase(left, ++right);
+                iter = tokens.insert(iter, leftToken + "/" + rightToken);
+            }
+        }
+
+        iter++;
+    }
+
+    return std::vector<std::string>(tokens.begin(), tokens.end());
 }
 
 bool ParserRPN::isParenthesis(const std::string &token) {
