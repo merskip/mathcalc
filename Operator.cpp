@@ -89,12 +89,14 @@ bool Operator::isSingleLatexExpression(const std::string expression) {
     if (ParserRPN::isNumber(expression))
         return true;
 
-    std::smatch match;
-    std::regex regex("^\\S+(?:\\{\\S+?\\})+$");
-    return std::regex_search(expression, match, regex);
+    try {
+        std::smatch match;
+        std::regex regex("^\\S+(?:\\{\\S+?\\})+$");
+        return std::regex_search(expression, match, regex);
+    } catch (std::regex_error &e) { // Występują problemy na Raspberry Pi (arm)
+        return false;
+    }
 }
-
-
 
 RationalNumber Operator::getRationalNumberLatexMath(const std::string &latexMath) {
     if (ParserRPN::isNumber(latexMath))
