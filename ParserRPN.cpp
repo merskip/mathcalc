@@ -116,10 +116,11 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
         tokens.push_back(str);
 
     std::list<std::string>::iterator iter = tokens.begin();
+    std::string lastOperator;
     while (iter != tokens.end()) {
         std::string token = *iter;
 
-        if (token == "/") {
+        if (token == "/" && lastOperator != "/") {
             std::list<std::string>::iterator left = std::prev(iter, 1);
             std::list<std::string>::iterator right = std::next(iter, 1);
 
@@ -131,6 +132,9 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
                 iter = tokens.insert(iter, leftToken + "/" + rightToken);
             }
         }
+
+        if (isOperator(token))
+            lastOperator = token;
 
         iter++;
     }
