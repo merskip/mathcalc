@@ -6,11 +6,11 @@
 #include "Exception.hpp"
 
 ParserRPN::OperationTypeMap ParserRPN::operationTypeMap = {
-        OperationTypeMap::value_type("+", std::make_pair(2, OpDirection::Left)),
-        OperationTypeMap::value_type("-", std::make_pair(2, OpDirection::Left)),
-        OperationTypeMap::value_type("*", std::make_pair(3, OpDirection::Left)),
-        OperationTypeMap::value_type("/", std::make_pair(3, OpDirection::Left)),
-        OperationTypeMap::value_type("^", std::make_pair(4, OpDirection::Right))
+        {"+", {2, OpDirection::Left}},
+        {"-", {2, OpDirection::Left}},
+        {"*", {3, OpDirection::Left}},
+        {"/", {3, OpDirection::Left}},
+        {"^", {4, OpDirection::Right}}
 };
 
 ParserRPN::ParserRPN(std::vector<std::string> const &tokens)
