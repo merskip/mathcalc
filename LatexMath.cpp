@@ -1,14 +1,29 @@
 #include <assert.h>
+#include <iostream>
 #include "LatexMath.hpp"
 #include "ParserRPN.hpp"
 
 std::string LatexMath::fromRPN(const std::vector<std::string> &rpn) {
     std::stack<std::pair<std::string, Operator::OpType>> latexStack;
 
+    unsigned int i = 0;
     for (std::string token : rpn) {
         if (ParserRPN::isRationalNumber(token)) {
             RationalNumber number = ParserRPN::toRationalNumber(token);
-            latexStack.push({fromNumber(number), {Operator::None}});
+
+            std::string number_l = fromNumber(number);
+
+            if (!number.isInteger() && i + 1 < rpn.size()) {
+                std::string nextToken = rpn.at(i + 1);
+                if (nextToken == "^")
+                    number_l = fromNumber(number, true);
+            }
+            i++;
+
+            if (number.isInteger())
+                latexStack.push({number_l, {Operator::None}});
+            else
+                latexStack.push({number_l, {Operator::Dividing}});
         }
         else if (ParserRPN::isOperator(token)) {
             auto latexRight = latexStack.top();
@@ -102,7 +117,7 @@ std::pair<std::string, Operator::OpType> LatexMath::generateLatexEntity(const Op
                     ? "\\left(" + opEntity.left.latex + "\\right)"
                     : opEntity.left.latex;
 
-            latex += "^{" + opEntity.right.latex + "}";
+            latex += "^{" + getNormalFractionsForExponent(opEntity.right.latex) + "}";
             break;
 
         default:
@@ -112,7 +127,7 @@ std::pair<std::string, Operator::OpType> LatexMath::generateLatexEntity(const Op
     return {latex, opEntity.opType};
 }
 
-std::string LatexMath::fromNumber(const RationalNumber &number) {
+std::string LatexMath::fromNumber(const RationalNumber &number, bool slanted) {
     int num = number.getNumerator();
     int den = number.getDenominator();
 
@@ -122,8 +137,29 @@ std::string LatexMath::fromNumber(const RationalNumber &number) {
     std::string num_s = std::to_string(abs(num));
     std::string den_s = std::to_string(abs(den));
 
-    if (num >= 0)
-        return "\\dfrac{" + num_s + "}{" + den_s + "}";
-    else
-        return "-\\dfrac{" + num_s + "}{" + den_s + "}";
+    if (!slanted) {
+        return num >= 0
+            ? "\\dfrac{" + num_s + "}{" + den_s + "}"
+            : "-\\dfrac{" + num_s + "}{" + den_s + "}";
+    } else {
+        return num >= 0
+            ? num_s + "/" + den_s
+            : "-" + num_s + "/" + den_s;
+    }
+}
+
+std::string LatexMath::getNormalFractionsForExponent(std::string exponentLatex) {
+    replace_all(exponentLatex, "\\dfrac", "\\frac");
+    replace_all(exponentLatex, "\\left(", "(");
+    replace_all(exponentLatex, "\\right)", ")");
+    return exponentLatex;
+}
+
+
+void LatexMath::replace_all(std::string &subject, const std::string &search, const std::string &replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+        subject.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
 }

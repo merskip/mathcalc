@@ -24,9 +24,13 @@ private:
 public:
     static std::string fromRPN(const std::vector<std::string> &rpn);
 
-    static std::string fromNumber(const RationalNumber &number);
+    static std::string fromNumber(const RationalNumber &number, bool slanted = false);
 
 private:
     static OperatorEntity &appendBracketsToOperatorEntity(OperatorEntity &opEntity);
     static std::pair<std::string, Operator::OpType> generateLatexEntity(const OperatorEntity &opEntity);
+
+    static std::string getNormalFractionsForExponent(std::string exponentLatex);
+
+    static void replace_all(std::string &subject, const std::string &search, const std::string &replace);
 };
