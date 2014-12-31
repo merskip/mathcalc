@@ -6,7 +6,8 @@ const std::map<int, std::string> Exception::errorMessages = {
         {0x1, "Problem with parentheses"},
         {0x2, "Operator expected"},
         {0x3, "Expected more arguments"},
-        {0x4, "Unknown token"}
+        {0x4, "Unknown token"},
+        {0x5, "Exponentiation only for integer of exponent"}
 };
 
 Exception::Exception(std::string message)

@@ -98,6 +98,14 @@ std::string CalculatorRPN::generateLatexMath(std::vector<std::string> rpn) {
                     latexStack.push_back({exp, opType});
                     break;
 
+                case Operator::Exponentiation:
+                    if (opLeft != Operator::None)
+                        useLeftBrackets = true;
+
+                    exp = toLatexMath(latexLeft, latexRight, opType, useLeftBrackets, useRightBrackets);
+                    latexStack.push_back({exp, opType});
+                    break;
+
                 default:
                     assert(false);
             }
@@ -110,8 +118,6 @@ std::string CalculatorRPN::generateLatexMath(std::vector<std::string> rpn) {
 std::string CalculatorRPN::toLatexMath(const std::string &leftExp, const std::string &rightExp,
         const Operator::OpType &opType, bool useLeftBrackets, bool useRightBrackets) {
     std::string exp = "";
-
-    RationalNumber rightParam;
 
     switch (opType) {
         case Operator::OpType::Adding:
@@ -132,29 +138,8 @@ std::string CalculatorRPN::toLatexMath(const std::string &leftExp, const std::st
             break;
 
         case Operator::OpType::Exponentiation:
-            rightParam = Operator::getRationalNumberLatexMath(rightExp);
-            if (!rightParam.isIndeterminate() && !rightParam.isInteger()) {
-
-                int num = rightParam.getNumerator();
-                int den = rightParam.getDenominator();
-
-                if (num != 1) {
-                    exp += ParserRPN::isNumber(leftExp) ? leftExp : "\\left(" + leftExp + "\\right)";
-                    exp += "^{" + rightExp + "}";
-                } else {
-                    int &root = den;
-                    if (root != 2) {
-                        exp += "\\sqrt[" + std::to_string((unsigned int) root) + "]";
-                        exp += "{" + leftExp + "}";
-                    } else {
-                        exp += "\\sqrt[]";
-                        exp += "{" + leftExp + "}";
-                    }
-                }
-            } else {
-                exp += ParserRPN::isNumber(leftExp) ? leftExp : "\\left(" + leftExp + "\\right)";
-                exp += "^{" + rightExp + "}";
-            }
+            exp += !useLeftBrackets ? leftExp : "\\left(" + leftExp + "\\right)";
+            exp += "^{" + rightExp + "}";
             break;
 
         default:
