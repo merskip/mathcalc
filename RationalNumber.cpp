@@ -103,21 +103,20 @@ RationalNumber &RationalNumber::operator*=(const RationalNumber &factor) {
 
 
 RationalNumber RationalNumber::pow(const RationalNumber &base, const RationalNumber &exponent) {
-    if (!exponent.isInteger())
+    RationalNumber _exponent = exponent;
+    RationalNumber _base = base;
+
+    _exponent.simplify();
+    if (!_exponent.isInteger())
         throw Exception("Exponentiation only for integer of exponent", 0x5);
 
-    int exponentInteger = exponent.getNumerator();
+    int exponentInteger = _exponent.getNumerator();
 
-    int numerator;
-    int denominator;
+    if (exponentInteger < 0)
+        _base = base.getInverseNumber();
 
-    if (exponentInteger > 0) {
-        numerator = (int) ::pow(base.getNumerator(), exponentInteger);
-        denominator = (int) ::pow(base.getDenominator(), exponentInteger);
-    } else {
-        numerator = (int) ::pow(base.getDenominator(), ::abs(exponentInteger));
-        denominator = (int) ::pow(base.getNumerator(), ::abs(exponentInteger));
-    }
+    int numerator = (int) ::pow(_base.getNumerator(), ::abs(exponentInteger));
+    int denominator = (int) ::pow(_base.getDenominator(), ::abs(exponentInteger));
 
     RationalNumber number(numerator, denominator);
     number.simplify();
