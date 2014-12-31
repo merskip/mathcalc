@@ -6,6 +6,7 @@
 #include <math.h>
 #include "RationalNumber.hpp"
 #include "Exception.hpp"
+#include "LatexMath.hpp"
 
 RationalNumber::RationalNumber()
         : numerator(0),
@@ -156,20 +157,7 @@ std::string RationalNumber::toDecimal() const {
 }
 
 std::string RationalNumber::toLatexMath() const {
-    if (!isInteger()) {
-        std::string n = std::to_string(numerator);
-        std::string d = std::to_string(denominator);
-
-        if (numerator < 0) {
-            n = std::to_string(abs(numerator));
-            d = std::to_string(abs(denominator));
-            return "-\\dfrac{" + n + "}{" + d + "}";
-        } else {
-            return "\\dfrac{" + n + "}{" + d + "}";
-        }
-    } else {
-        return std::to_string(numerator);
-    }
+    return LatexMath::fromNumber(*this);
 }
 
 

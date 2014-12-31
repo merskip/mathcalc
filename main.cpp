@@ -10,6 +10,7 @@
 #include "RationalNumber.hpp"
 #include "ParserRPN.hpp"
 #include "CalculatorRPN.hpp"
+#include "LatexMath.hpp"
 
 #define APP_NAME "MathCalc"
 #define PROMPT " >> "
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]) {
                     {"result", encodeJson({
                             {"plain_text", result.result.toPlainText()},
                             {"decimal", result.result.toDecimal()},
-                            {"as_latex", result.result.toLatexMath()}
+                            {"as_latex", LatexMath::fromNumber(result.result)}
                     })}
             });
             std::cout << json << std::endl;
