@@ -6,18 +6,20 @@
 class Operator {
 public:
     enum OpType {
-        None = 0x00,            // b0000
-        Adding = 0x02,          // b0010
-        Subtracting = 0x03,     // b0011
-        Multiplying = 0x04,     // b0100
-        Dividing = 0x05,        // b0101
-        Exponentiation = 0x08,  // b1000
+        None            = 0x00, // 0000 0000
+        Negative        = 0x10, // 0001 0000
+        Adding          = 0x20, // 0010 0000
+        Subtracting     = 0x21, // 0010 0001
+        Multiplying     = 0x40, // 0100 0000
+        Dividing        = 0x41, // 0100 0001
+        Exponentiation  = 0x80  // 1000 0000
     };
 
-    const static int OP_MASK_ADD_SUB = 0x02;       // b0010
-    const static int OP_MASK_MULTI_DIVISON = 0x04; // b0100
-    const static int OP_MASK_POW = 0x08;           // b1000
-    const static int OP_MASK_PRIORITY = 0x0E;      // b1110
+    const static int OP_MASK_NEG_POS       = 0x10; // 0001 0000
+    const static int OP_MASK_ADD_SUB       = 0x20; // 0010 0000
+    const static int OP_MASK_MULTI_DIVISON = 0x40; // 0100 0000
+    const static int OP_MASK_POW           = 0x80; // 1000 0000
+    const static int OP_MASK_PRIORITY      = 0xF0; // 1111 0000
 
 private:
     RationalNumber leftParam;

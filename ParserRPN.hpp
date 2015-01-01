@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 #include "RationalNumber.hpp"
 
@@ -29,6 +30,7 @@ public:
 
     static bool isParenthesis(const std::string &token);
     static bool isOperator(const std::string &token);
+    static bool isNegative(std::list<std::string> &tokens, std::list<std::string>::iterator &iter);
     static bool isAssociative(const std::string &token, OpDirection direction);
     static bool isRationalNumber(const std::string &token);
     static RationalNumber toRationalNumber(const std::string &token);

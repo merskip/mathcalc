@@ -10,6 +10,7 @@ ParserRPN::OperationTypeMap ParserRPN::operationTypeMap = {
         {"-", {2, OpDirection::Left}},
         {"*", {3, OpDirection::Left}},
         {"/", {3, OpDirection::Left}},
+        {"~", {4, OpDirection::Right}},
         {"^", {4, OpDirection::Right}}
 };
 
@@ -119,7 +120,7 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
     std::stack<std::string> opStack;
     std::string lastOperator;
     while (iter != tokens.end()) {
-        std::string token = *iter;
+        std::string &token = *iter;
 
         if (token == "(") {
             opStack.push(lastOperator);
@@ -143,6 +144,19 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
             }
         }
 
+        if (isNegative(tokens, iter)) {
+            std::string &rightToken = *std::next(iter, 1);
+            auto nextOp = std::next(iter, 2);
+            if (isNumber(rightToken) && (nextOp == tokens.end() || *nextOp != "^")) {
+                rightToken = "-" + rightToken;
+                iter = tokens.erase(iter);
+                continue;
+            }
+            else {
+                token = "~";
+            }
+        }
+
         if (isOperator(token))
             lastOperator = token;
 
@@ -157,7 +171,24 @@ bool ParserRPN::isParenthesis(const std::string &token) {
 }
 
 bool ParserRPN::isOperator(const std::string &token) {
-    return token == "+" || token == "-" || token == "*" || token == "/" || token == "^";
+    return token == "+"
+            || token == "-"
+            || token == "*"
+            || token == "/"
+            || token == "~"
+            || token == "^";
+}
+
+bool ParserRPN::isNegative(std::list<std::string> &tokens, std::list<std::string>::iterator &iter) {
+    if (*iter != "-")
+        return false;
+
+    auto left = std::prev(iter, 1);
+
+    if (iter == tokens.begin())
+        return true;
+
+    return *left == "(" || *left == "*" || *left == "^";
 }
 
 bool ParserRPN::isAssociative(const std::string &token, OpDirection director) {

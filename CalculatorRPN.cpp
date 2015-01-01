@@ -15,6 +15,11 @@ CalculatorRPN::Result CalculatorRPN::compute(CalculatorRPN::Input &input) {
             RationalNumber number = ParserRPN::toRationalNumber(token);
             stack.push(number);
         }
+        else if (token == "~") {
+            RationalNumber rightParam = stack.top();
+            stack.pop();
+            stack.push(rightParam * -1);
+        }
         else if (ParserRPN::isOperator(token)) {
             if (stack.size() < 2)
                 throw Exception("Expected more arguments", 0x3);

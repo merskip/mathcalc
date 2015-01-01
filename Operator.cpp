@@ -51,6 +51,7 @@ Operator::OpType Operator::getOpType(const std::string &s) {
 std::string Operator::opTypeToString(const Operator::OpType &opType) {
     switch (opType) {
         case None: return "∅";
+        case Negative: return "~";
         case Adding: return "+";
         case Subtracting: return "-";
         case Multiplying: return "*";
