@@ -5,36 +5,27 @@
 #include "ParserRPN.hpp"
 #include "Exception.hpp"
 
-ParserRPN::OperationTypeMap ParserRPN::operationTypeMap = {
-        {"+", {2, OpDirection::Left}},
-        {"-", {2, OpDirection::Left}},
-        {"*", {3, OpDirection::Left}},
-        {"/", {3, OpDirection::Left}},
-        {"~", {4, OpDirection::Right}},
-        {"^", {4, OpDirection::Right}}
-};
-
-ParserRPN::ParserRPN(std::vector<std::string> const &tokens)
+ParserRPN::ParserRPN(std::vector<Token> const &tokens)
         : tokens(tokens) {
 }
 
-std::vector<std::string> ParserRPN::parseRPN(const std::vector<std::string> &tokens) {
+std::vector<Token> ParserRPN::parseRPN(const std::vector<Token> &tokens) {
     ParserRPN rpn(tokens);
     return rpn.parseRPN();
 }
 
-std::vector<std::string> ParserRPN::parseRPN() {
-    std::vector<std::string> outStack;
-    std::stack<std::string> opStack;
+std::vector<Token> ParserRPN::parseRPN() {
+    std::vector<Token> outStack;
+    std::stack<Token> opStack;
 
-    for (const std::string token : tokens) {
+    for (Token token : tokens) {
         if (isOperator(token)) {
-            const std::string o1 = token;
+            Token o1 = token;
 
             if (!opStack.empty()) {
-                std::string o2 = opStack.top();
+                Token o2 = opStack.top();
 
-                while (isOperator(o2) && ((isAssociative(o1, OpDirection::Left)
+                while (isOperator(o2) && ((isAssociative(o1, TokenBiding::Left)
                         && comparePrecedence(o1, o2) == 0) || (comparePrecedence(o1, o2) < 0))) {
 
                     opStack.pop();
@@ -49,13 +40,13 @@ std::vector<std::string> ParserRPN::parseRPN() {
 
             opStack.push(o1);
         }
-        else if (token == "(") {
+        else if (token.text == "(") {
             opStack.push(token);
         }
-        else if (token == ")") {
-            std::string opTop = opStack.top();
+        else if (token.text == ")") {
+            Token opTop = opStack.top();
 
-            while (opTop != "(") {
+            while (opTop.text != "(") {
                 outStack.push_back(opTop);
                 opStack.pop();
 
@@ -67,7 +58,7 @@ std::vector<std::string> ParserRPN::parseRPN() {
             if (!opStack.empty())
                 opStack.pop();
 
-            if (opTop != "(")
+            if (opTop.text != "(")
                 throw Exception("Not found opening parenthesis", 0x1);
         }
         else {
@@ -76,9 +67,9 @@ std::vector<std::string> ParserRPN::parseRPN() {
     }
 
     while (!opStack.empty()) {
-        const std::string opToken = opStack.top();
+        const Token opToken = opStack.top();
 
-        if (isParenthesis(opToken))
+        if (isParenthesis(opToken.text))
             throw Exception("Not expected to parenthesis", 0x1);
 
         outStack.push_back(opToken);
@@ -88,8 +79,8 @@ std::vector<std::string> ParserRPN::parseRPN() {
     return outStack;
 }
 
-std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expression) {
-    std::list<std::string> tokens;
+std::vector<Token> ParserRPN::getExpressionTokens(const std::string &expression) {
+    std::list<Token> tokens;
     std::string str = "";
 
     for (int i = 0; i < (int) expression.length(); ++i) {
@@ -97,16 +88,16 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
 
         if (isOperator(token) || isParenthesis(token)) {
             if (!str.empty()) {
-                tokens.push_back(str);
+                tokens.push_back(getToken(str));
             }
             str = "";
-            tokens.push_back(token);
+            tokens.push_back(getToken(token));
         }  else {
             if (!token.empty() && token != " " && token != "\n") {
                 str.append(token);
             }  else {
                 if (str != "") {
-                    tokens.push_back(str);
+                    tokens.push_back(getToken(str));
                     str = "";
                 }
             }
@@ -114,60 +105,94 @@ std::vector<std::string> ParserRPN::getExpressionTokens(const std::string &expre
     }
 
     if (!str.empty())
-        tokens.push_back(str);
+        tokens.push_back(getToken(str));
 
-    std::list<std::string>::iterator iter = tokens.begin();
+    std::list<Token>::iterator iter = tokens.begin();
     std::stack<std::string> opStack;
     std::string lastOperator;
     while (iter != tokens.end()) {
-        std::string &token = *iter;
+        Token &token = *iter;
 
-        if (token == "(") {
+        if (token.text == "(") {
             opStack.push(lastOperator);
             lastOperator = "";
         }
-        else if (token == ")") {
+        else if (token.text == ")") {
             lastOperator = opStack.top();
             opStack.pop();
         }
 
-        if (token == "/" && lastOperator != "/" && lastOperator != "^") {
-            std::list<std::string>::iterator left = std::prev(iter, 1);
-            std::list<std::string>::iterator right = std::next(iter, 1);
+        if (token.text == "/" && lastOperator != "/" && lastOperator != "^") {
+            auto left = std::prev(iter, 1);
+            auto right = std::next(iter, 1);
 
-            std::string leftToken = *left;
-            std::string rightToken = *right;
+            Token leftToken = *left;
+            Token rightToken = *right;
 
-            if (isNumber(leftToken) && isNumber(rightToken)) {
+            if (leftToken.type == Number && rightToken.type == Number) {
                 iter = tokens.erase(left, ++right);
-                iter = tokens.insert(iter, leftToken + "/" + rightToken);
+                std::string newTokenText = leftToken.text + "/" + rightToken.text;
+                iter = tokens.insert(iter, {newTokenText, Number});
+
+                lastOperator = "/";
+                iter++;
+                continue;
             }
         }
 
         if (isNegative(tokens, iter)) {
-            std::string &rightToken = *std::next(iter, 1);
+            Token &rightToken = *std::next(iter, 1);
             auto nextOp = std::next(iter, 2);
-            if (isNumber(rightToken) && (nextOp == tokens.end() || *nextOp != "^")) {
-                rightToken = "-" + rightToken;
+            if (isNumber(rightToken.text) && (nextOp == tokens.end() || (*nextOp).text != "^")) {
+                rightToken = {"-" + rightToken.text, Number};
                 iter = tokens.erase(iter);
                 continue;
             }
             else {
-                token = "~";
-            }
+                token = {"-", Negative};
+            };
         }
 
-        if (isOperator(token))
-            lastOperator = token;
+        if (isOperator(token.text))
+            lastOperator = token.text;
 
         iter++;
     }
 
-    return std::vector<std::string>(tokens.begin(), tokens.end());
+//    for (auto t : tokens)
+//        std::cout << ""
+
+    return std::vector<Token>(tokens.begin(), tokens.end());
+}
+
+
+Token ParserRPN::getToken(const std::string &token) {
+    return {token, getTokenType(token)};
+}
+
+TokenType ParserRPN::getTokenType(const std::string &token) {
+    if (token == "(")       return LeftBracket;
+    else if (token == ")")  return RightBracket;
+    else if (token == "+")  return Adding;
+    else if (token == "-")  return Subtracting;
+    else if (token == "*")  return Multiplying;
+    else if (token == "/")  return Dividing;
+    else if (token == "^")  return Exponentiation;
+    else if (isNumber(token)) return Number;
+    else                    return Unknown;
+}
+
+
+bool ParserRPN::isParenthesis(const Token &token) {
+    return token.type & TOKEN_MASK_BRACKET;
 }
 
 bool ParserRPN::isParenthesis(const std::string &token) {
     return token == "(" || token == ")";
+}
+
+bool ParserRPN::isOperator(const Token &token) {
+    return token.type & TOKEN_MASK_IS_OPERATOR;
 }
 
 bool ParserRPN::isOperator(const std::string &token) {
@@ -179,23 +204,28 @@ bool ParserRPN::isOperator(const std::string &token) {
             || token == "^";
 }
 
-bool ParserRPN::isNegative(std::list<std::string> &tokens, std::list<std::string>::iterator &iter) {
-    if (*iter != "-")
+
+bool ParserRPN::isNegative(const Token &token) {
+    return token.type == TokenType::Negative;
+}
+
+bool ParserRPN::isNegative(std::list<Token> &tokens, std::list<Token>::iterator &iter) {
+    if ((*iter).text != "-")
         return false;
 
-    auto left = std::prev(iter, 1);
+    auto tokenLeft = std::prev(iter, 1);
+    std::string left = (*tokenLeft).text;
 
     if (iter == tokens.begin())
         return true;
 
-    return *left == "(" || *left == "*" || *left == "^";
+    return left == "(" || left == "*" || left == "^";
 }
 
-bool ParserRPN::isAssociative(const std::string &token, OpDirection director) {
-    const std::pair<int, OpDirection> op = operationTypeMap.find(token)->second;
-    return op.second == director;
-}
 
+bool ParserRPN::isAssociative(const Token &token, TokenBiding biding) {
+    return (token.type & TOKEN_MASK_BINDING) == biding;
+}
 
 bool ParserRPN::isRationalNumber(const std::string &token) {
     if (token == "/")
@@ -212,7 +242,6 @@ bool ParserRPN::isRationalNumber(const std::string &token) {
     return isNumber(numerator) && isNumber(denominator);
 }
 
-
 RationalNumber ParserRPN::toRationalNumber(const std::string &token) {
     if (isNumber(token))
         return RationalNumber(std::stoi(token));
@@ -223,15 +252,18 @@ RationalNumber ParserRPN::toRationalNumber(const std::string &token) {
     return RationalNumber(numerator, denominator);
 }
 
+bool ParserRPN::isNumber(const Token &token) {
+    return (token.type & TOKEN_MASK_CLASS) == 0x0000;
+}
+
 bool ParserRPN::isNumber(const std::string &token) {
     char* p;
     strtol(token.c_str(), &p, 10);
     return *p == 0;
 }
 
-int ParserRPN::comparePrecedence(const std::string &token1, const std::string &token2) {
-    const std::pair<int, int> op1 = operationTypeMap.find(token1)->second;
-    const std::pair<int, int> op2 = operationTypeMap.find(token2)->second;
-
-    return op1.first - op2.first;
+int ParserRPN::comparePrecedence(const Token &token1, const Token &token2) {
+    const int token1priority = (token1.type & TOKEN_MASK_PRIORITY) >> 4;
+    const int token2priority = (token2.type & TOKEN_MASK_PRIORITY) >> 4;
+    return token1priority - token2priority;
 }

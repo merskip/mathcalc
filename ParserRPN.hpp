@@ -5,36 +5,40 @@
 #include <list>
 #include <map>
 #include "RationalNumber.hpp"
+#include "Token.hpp"
+#include "Operator.hpp"
 
 class ParserRPN {
-public:
-    enum OpDirection {
-        Left,
-        Right
-    };
-
-    typedef std::map<std::string, std::pair<int, OpDirection>> OperationTypeMap;
-
 private:
-    static OperationTypeMap operationTypeMap;
-
-    const std::vector<std::string> tokens;
+    const std::vector<Token> tokens;
 
 public:
-    ParserRPN(const std::vector<std::string> &tokens);
+    ParserRPN(const std::vector<Token> &tokens);
 
-    static std::vector<std::string> parseRPN(const std::vector<std::string> &tokens);
-    std::vector<std::string> parseRPN();
+    static std::vector<Token> parseRPN(const std::vector<Token> &tokens);
+    std::vector<Token> parseRPN();
 
-    static std::vector<std::string> getExpressionTokens(const std::string &expression);
+    static std::vector<Token> getExpressionTokens(const std::string &expression);
 
+    static Token getToken(const std::string &token);
+    static TokenType getTokenType(const std::string &token);
+
+    static bool isParenthesis(const Token &token);
     static bool isParenthesis(const std::string &token);
+
+    static bool isOperator(const Token &token);
     static bool isOperator(const std::string &token);
-    static bool isNegative(std::list<std::string> &tokens, std::list<std::string>::iterator &iter);
-    static bool isAssociative(const std::string &token, OpDirection direction);
+
+    static bool isNegative(const Token &token);
+    static bool isNegative(std::list<Token> &tokens, std::list<Token>::iterator &iter);
+
+    static bool isAssociative(const Token &token, TokenBiding biding);
+
     static bool isRationalNumber(const std::string &token);
     static RationalNumber toRationalNumber(const std::string &token);
+
+    static bool isNumber(const Token &token);
     static bool isNumber(const std::string &token);
 
-    static int comparePrecedence(const std::string &token1, const std::string &token2);
+    static int comparePrecedence(const Token &token1, const Token &token2);
 };

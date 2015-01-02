@@ -1,37 +1,36 @@
 #include <assert.h>
 #include <iostream>
 #include "LatexMath.hpp"
-#include "ParserRPN.hpp"
 
-#define DEBUG
+//#define DEBUG
 
-std::string LatexMath::fromRPN(const std::vector<std::string> &rpn) {
+std::string LatexMath::fromRPN(const std::vector<Token> &rpn) {
     std::vector<std::pair<std::string, Operator::OpType>> latexStack;
 
     for (auto iter = rpn.begin(); iter != rpn.end(); iter++) {
-        std::string token = *iter;
+        const Token token = *iter;
 
 #ifdef DEBUG
         static int i = 0;
         std::cout << std::endl << " ------------ " << std::endl;
         int j = 0;
         for (auto t : rpn) {
-            if (i == j) std::cout << "_" << t << "_";
-            else std::cout << " " << t << " ";
+            if (i == j) std::cout << "_" << toString(t) << "_";
+            else std::cout << " " << toString(t) << " ";
             j++;
         }
         i++;
         std::cout << std::endl;
 #endif
 
-        if (ParserRPN::isRationalNumber(token)) {
-            RationalNumber number = ParserRPN::toRationalNumber(token);
+        if (ParserRPN::isNumber(token)) {
+            RationalNumber number = ParserRPN::toRationalNumber(token.text);
 
             std::string number_l = fromNumber(number);
 
             if (!number.isInteger() && std::next(iter, 1) != rpn.end()) {
-                std::string nextToken = *std::next(iter, 1);
-                if (nextToken == "^")
+                Token nextToken = *std::next(iter, 1);
+                if (nextToken.text == "^")
                     number_l = fromNumber(number, true);
             }
 
@@ -40,7 +39,7 @@ std::string LatexMath::fromRPN(const std::vector<std::string> &rpn) {
             else
                 latexStack.push_back({number_l, {Operator::Dividing}});
         }
-        else if (token == "~") {
+        else if (ParserRPN::isNegative(token)) {
             auto latexRight = latexStack.back();
             latexStack.pop_back();
 
@@ -61,7 +60,7 @@ std::string LatexMath::fromRPN(const std::vector<std::string> &rpn) {
             OperatorEntity opEntity;
             opEntity.opType = Operator::getOpType(token);
             opEntity.left = {latexLeft.first, latexLeft.second, false};
-            opEntity.right = {latexRight.first, latexRight.second, false};
+            opEntity.right = {latexRight.first, latexRight.second, false};;
             opEntity = appendBracketsToOperatorEntity(opEntity);
 
             auto latexEntity = generateLatexEntity(opEntity);
@@ -79,7 +78,7 @@ std::string LatexMath::fromRPN(const std::vector<std::string> &rpn) {
     return latexStack.back().first;
 }
 
-LatexMath::OperatorEntity &LatexMath::appendBracketsToOperatorEntity(OperatorEntity &opEntity) {
+LatexMath::OperatorEntity &LatexMath::appendBracketsToOperatorEntity(OperatorEntity &opEntity) {;
     switch (opEntity.opType) {
         case Operator::Negative:
             if (opEntity.right.opType & Operator::OP_MASK_ADD_SUB)
@@ -122,6 +121,7 @@ LatexMath::OperatorEntity &LatexMath::appendBracketsToOperatorEntity(OperatorEnt
         if (opEntity.right.latex[0] == '-')
             opEntity.right.useBrackets = true;
     }
+
     if (opEntity.opType == Operator::Exponentiation) {
         if (opEntity.left.latex[0] == '-')
             opEntity.left.useBrackets = true;

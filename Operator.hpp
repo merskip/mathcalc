@@ -2,12 +2,14 @@
 
 #include <string>
 #include "RationalNumber.hpp"
+#include "ParserRPN.hpp"
 
 class Operator {
 public:
     enum OpType {
         None            = 0x00, // 0000 0000
         Negative        = 0x10, // 0001 0000
+        Positive        = 0x11, // 0001 0001
         Adding          = 0x20, // 0010 0000
         Subtracting     = 0x21, // 0010 0001
         Multiplying     = 0x40, // 0100 0000
@@ -32,11 +34,7 @@ public:
 
     RationalNumber getResult();
 
-
-    static bool isSingleLatexExpression(const std::string expression);
-    static RationalNumber getRationalNumberLatexMath(const std::string &latexMath);
-
-    static OpType getOpType(const std::string &s);
+    static OpType getOpType(const Token &token);
     static std::string opTypeToString(const OpType &opType);
 };
 

@@ -5,6 +5,7 @@
 #include <stack>
 #include "RationalNumber.hpp"
 #include "Operator.hpp"
+#include "ParserRPN.hpp"
 
 class LatexMath {
 public:
@@ -22,7 +23,7 @@ private:
     LatexMath() {}
 
 public:
-    static std::string fromRPN(const std::vector<std::string> &rpn);
+    static std::string fromRPN(const std::vector<Token> &rpn);
 
     static std::string fromNumber(const RationalNumber &number, bool slanted = false);
 

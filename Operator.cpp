@@ -2,7 +2,6 @@
 #include <regex>
 #include <iostream>
 #include "Operator.hpp"
-#include "ParserRPN.hpp"
 
 Operator::Operator() {
 }
@@ -24,34 +23,24 @@ RationalNumber Operator::getResult() {
     }
 }
 
-RationalNumber Operator::getRationalNumberLatexMath(const std::string &latexMath) {
-    if (ParserRPN::isNumber(latexMath))
-        return ParserRPN::toRationalNumber(latexMath);
-
-    std::smatch match;
-    std::regex regex("^\\\\frac\\{(\\d+)\\}\\{(\\d+)\\}$");
-    if (!std::regex_match(latexMath, match, regex))
-        return RationalNumber();
-
-    int num = std::stoi(match[1]);
-    int den = std::stoi(match[2]);
-    return RationalNumber(num, den);
+Operator::OpType Operator::getOpType(const Token &token) {
+    switch (token.type) {
+        case TokenType::Negative: return OpType::Negative;
+        case TokenType::Positive: return OpType::Positive;
+        case TokenType::Adding: return OpType::Adding;
+        case TokenType::Subtracting: return OpType::Subtracting;
+        case TokenType::Multiplying: return OpType::Multiplying;
+        case TokenType::Dividing: return OpType::Dividing;
+        case TokenType::Exponentiation: return OpType::Exponentiation;
+        default: assert(false);
+    }
 }
-
-Operator::OpType Operator::getOpType(const std::string &s) {
-    if (s == "+") return OpType::Adding;
-    else if (s == "-") return OpType::Subtracting;
-    else if (s == "*") return OpType::Multiplying;
-    else if (s == "/") return OpType::Dividing;
-    else if (s == "^") return OpType::Exponentiation;
-    else assert(false);
-}
-
 
 std::string Operator::opTypeToString(const Operator::OpType &opType) {
     switch (opType) {
         case None: return "∅";
-        case Negative: return "~";
+        case Negative: return "-`";
+        case Positive: return "+`";
         case Adding: return "+";
         case Subtracting: return "-";
         case Multiplying: return "*";

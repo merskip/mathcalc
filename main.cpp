@@ -18,7 +18,7 @@
 CalculatorRPN::Result computeExpression(const std::string &rawInput);
 std::string encodeJson(std::vector<std::pair<std::string, std::string>> data);
 
-std::string toString(const std::vector<std::string> &stringVector);
+std::string toString(const std::vector<Token> &tokens);
 std::string replaceString(std::string subject, const std::string &search,  const std::string &replace);
 
 enum RunningMode {
@@ -135,10 +135,10 @@ std::string encodeJson(std::vector<std::pair<std::string, std::string>> data) {
     return json.str();
 }
 
-std::string toString(const std::vector<std::string> &stringVector) {
+std::string toString(const std::vector<Token> &tokens) {
     std::stringstream str;
-    for (std::string item : stringVector)
-        str << item << " ";
+    for (Token token : tokens)
+        str << toString(token) << " ";
     return str.str();
 }
 

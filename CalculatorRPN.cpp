@@ -3,19 +3,18 @@
 #include <tgmath.h>
 #include <regex>
 #include "CalculatorRPN.hpp"
-#include "ParserRPN.hpp"
 #include "Exception.hpp"
 #include "LatexMath.hpp"
 
 CalculatorRPN::Result CalculatorRPN::compute(CalculatorRPN::Input &input) {
     std::stack<RationalNumber> stack;
 
-    for (std::string token : input.rpn) {
-        if (ParserRPN::isRationalNumber(token)) {
-            RationalNumber number = ParserRPN::toRationalNumber(token);
+    for (Token token : input.rpn) {
+        if (ParserRPN::isNumber(token)) {
+            RationalNumber number = ParserRPN::toRationalNumber(token.text);
             stack.push(number);
         }
-        else if (token == "~") {
+        else if (ParserRPN::isNegative(token)) {
             RationalNumber rightParam = stack.top();
             stack.pop();
             stack.push(rightParam * -1);
@@ -35,7 +34,7 @@ CalculatorRPN::Result CalculatorRPN::compute(CalculatorRPN::Input &input) {
             stack.push(opResult);
         }
         else {
-            throw Exception("Unknown token: " + token, 0x4);
+            throw Exception("Unknown token: " + token.text, 0x4);
         }
     }
 

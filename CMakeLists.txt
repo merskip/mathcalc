@@ -23,6 +23,7 @@ set(SOURCE_FILES
     ParserRPN.cpp
     CalculatorRPN.cpp
     LatexMath.cpp
+    Token.hpp
     Version.hpp.in)
 
 include_directories("${PROJECT_BINARY_DIR}")
