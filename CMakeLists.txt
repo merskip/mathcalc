@@ -12,20 +12,29 @@ add_custom_command(
             -D BUILD_DATE="${BUILD_DATE}"
     COMMENT "Generating version"
 )
-set_property(SOURCE Version.hpp.in PROPERTY OBJECT_DEPENDS)
+set_property(SOURCE include/Version.hpp.in PROPERTY OBJECT_DEPENDS)
 set_source_files_properties(Version.hpp PROPERTIES GENERATED TRUE)
 
 set(SOURCE_FILES
-    main.cpp
-    Exception.cpp
-    RationalNumber.cpp
-    Operator.cpp
-    ParserRPN.cpp
-    CalculatorRPN.cpp
-    LatexMath.cpp
-    Token.hpp
-    Version.hpp.in)
+    src/main.cpp
+    src/Exception.cpp
+    src/RationalNumber.cpp
+    src/Operator.cpp
+    src/ParserRPN.cpp
+    src/CalculatorRPN.cpp
+    src/LatexMath.cpp)
 
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories(include "${PROJECT_BINARY_DIR}")
 add_executable(MathCalc ${SOURCE_FILES} app_version)
-add_dependencies(MathCalc Version.hpp.in)
+add_dependencies(MathCalc include/Version.hpp.in)
+
+add_custom_target(clion_fix_headers SOURCES
+    include/CalculatorRPN.hpp
+    include/Exception.hpp
+    include/LatexMath.hpp
+    include/Operator.hpp
+    include/ParserRPN.hpp
+    include/RationalNumber.hpp
+    include/Token.hpp
+    include/Version.hpp.in
+)
