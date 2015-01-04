@@ -219,7 +219,7 @@ bool ParserRPN::isNegative(std::list<Token> &tokens, std::list<Token>::iterator 
     if (iter == tokens.begin())
         return true;
 
-    return left == "(" || left == "*" || left == "^" || left == "/";
+    return left == "(" || left == "*" || left == "^" || left == "/" || left == "+";
 }
 
 
