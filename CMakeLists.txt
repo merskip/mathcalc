@@ -24,7 +24,7 @@ set(SOURCE_FILES
     src/CalculatorRPN.cpp
     src/LatexMath.cpp)
 
-include_directories(include "${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR}/include" include)
 add_executable(MathCalc ${SOURCE_FILES} app_version)
 add_dependencies(MathCalc include/Version.hpp.in)
 
@@ -36,5 +36,6 @@ add_custom_target(clion_fix_headers SOURCES
     include/ParserRPN.hpp
     include/RationalNumber.hpp
     include/Token.hpp
+    include/Version.hpp
     include/Version.hpp.in
 )
