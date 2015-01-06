@@ -3,9 +3,6 @@
 #include <iostream>
 #include "Operator.hpp"
 
-Operator::Operator() {
-}
-
 Operator::Operator(RationalNumber leftParam, RationalNumber rightParam, Operator::OpType opType)
         : leftParam(leftParam),
           rightParam(rightParam),
@@ -14,11 +11,16 @@ Operator::Operator(RationalNumber leftParam, RationalNumber rightParam, Operator
 
 RationalNumber Operator::getResult() {
     switch (opType) {
-        case Adding: return leftParam + rightParam;
-        case Subtracting: return leftParam - rightParam;
-        case Dividing: return leftParam / rightParam;
-        case Multiplying: return leftParam * rightParam;
-        case Exponentiation: return RationalNumber::pow(leftParam, rightParam);
+        case Adding:
+            return leftParam.add(rightParam);
+        case Subtracting:
+            return leftParam.subtract(rightParam);
+        case Multiplying:
+            return leftParam.multiply(rightParam);
+        case Dividing:
+            return leftParam.divide(rightParam);
+        case Exponentiation:
+            return leftParam.pow(rightParam);
         default: assert(false);
     }
 }

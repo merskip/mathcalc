@@ -17,7 +17,7 @@ CalculatorRPN::Result CalculatorRPN::compute(CalculatorRPN::Input &input) {
         else if (ParserRPN::isNegative(token)) {
             RationalNumber rightParam = stack.top();
             stack.pop();
-            stack.push(rightParam * -1);
+            stack.push(rightParam.multiply({-1}));
         }
         else if (ParserRPN::isOperator(token)) {
             if (stack.size() < 2)

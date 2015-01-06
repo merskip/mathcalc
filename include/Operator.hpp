@@ -24,12 +24,11 @@ public:
     const static int OP_MASK_PRIORITY      = 0xF0; // 1111 0000
 
 private:
-    RationalNumber leftParam;
-    RationalNumber rightParam;
-    OpType opType;
+    const RationalNumber leftParam;
+    const RationalNumber rightParam;
+    const OpType opType;
 
 public:
-    Operator();
     Operator(RationalNumber leftParam, RationalNumber rightParam, Operator::OpType opType);
 
     RationalNumber getResult();

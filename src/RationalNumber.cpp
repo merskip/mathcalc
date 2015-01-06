@@ -26,86 +26,37 @@ RationalNumber::RationalNumber(int numerator, int denominator)
         throw std::invalid_argument("Denominator mustn't be zero");
 }
 
-RationalNumber RationalNumber::operator+(const int &component) {
-    return (*this) + RationalNumber(component, 1);
-}
-RationalNumber RationalNumber::operator+(const RationalNumber &component) {
-    RationalNumber number(*this);
-    number += component;
-    return number;
+
+RationalNumber RationalNumber::add(const RationalNumber &component) const {
+    RationalNumber result;
+    result.numerator = (numerator * component.denominator) + (denominator * component.numerator);
+    result.denominator = denominator * component.denominator;
+    return result;
 }
 
-RationalNumber &RationalNumber::operator+=(const int &component) {
-    return (*this) += RationalNumber(component, 1);
-}
-RationalNumber &RationalNumber::operator+=(const RationalNumber &component) {
-    numerator = numerator * component.denominator + denominator * component.numerator;
-    denominator = denominator * component.denominator;
-    simplify();
-    return *this;
+RationalNumber RationalNumber::subtract(const RationalNumber &subtrahend) const {
+    RationalNumber result;
+    result.numerator = (numerator * subtrahend.denominator) - (denominator * subtrahend.numerator);
+    result.denominator = denominator * subtrahend.denominator;
+    return result;
 }
 
-RationalNumber RationalNumber::operator-(const int &subtrahend) {
-    return (*this) - RationalNumber(subtrahend, 1);
-}
-RationalNumber RationalNumber::operator-(const RationalNumber &subtrahend) {
-    RationalNumber number(*this);
-    number -= subtrahend;
-    return number;
+RationalNumber RationalNumber::multiply(const RationalNumber &factor) const {
+    RationalNumber result;
+    result.numerator = numerator * factor.numerator;
+    result.denominator = denominator * factor.denominator;
+    return result;
 }
 
-RationalNumber &RationalNumber::operator-=(const int &subtrahend) {
-    return (*this) -= RationalNumber(subtrahend, 1);
-}
-RationalNumber &RationalNumber::operator-=(const RationalNumber &subtrahend) {
-    numerator = numerator * subtrahend.denominator - denominator * subtrahend.numerator;
-    denominator = denominator * subtrahend.denominator;
-    simplify();
-    return *this;
-}
-
-RationalNumber RationalNumber::operator/(const int &divisor) {
-    return (*this) / RationalNumber(divisor, 1);
-}
-RationalNumber RationalNumber::operator/(const RationalNumber &divisor) {
-    RationalNumber number(*this);
-    number /= divisor;
-    return number;
-}
-
-RationalNumber &RationalNumber::operator/=(const int &divisor) {
-    return (*this) /= RationalNumber(divisor, 1);
-}
-RationalNumber &RationalNumber::operator/=(const RationalNumber &divisor) {
+RationalNumber RationalNumber::divide(const RationalNumber &divisor) const {
     RationalNumber inverseDivisor = divisor.getInverseNumber();
-    (*this) *= inverseDivisor;
-    simplify();
-    return *this;
+    RationalNumber result = multiply(inverseDivisor);
+    return result;
 }
 
-RationalNumber RationalNumber::operator*(const int &factor) {
-    return (*this) * RationalNumber(factor, 1);
-}
-RationalNumber RationalNumber::operator*(const RationalNumber &factor) {
-    RationalNumber number(*this);
-    number *= factor;
-    return number;
-}
-
-RationalNumber &RationalNumber::operator*=(const int &factor) {
-    return (*this) *= RationalNumber(factor, 1);
-}
-RationalNumber &RationalNumber::operator*=(const RationalNumber &factor) {
-    numerator *= factor.numerator;
-    denominator *= factor.denominator;
-    simplify();
-    return *this;
-}
-
-
-RationalNumber RationalNumber::pow(const RationalNumber &base, const RationalNumber &exponent) {
+RationalNumber RationalNumber::pow(const RationalNumber &exponent) const {
+    RationalNumber _base = *this;
     RationalNumber _exponent = exponent;
-    RationalNumber _base = base;
 
     _exponent.simplify();
     if (!_exponent.isInteger())
@@ -114,14 +65,12 @@ RationalNumber RationalNumber::pow(const RationalNumber &base, const RationalNum
     int exponentInteger = _exponent.getNumerator();
 
     if (exponentInteger < 0)
-        _base = base.getInverseNumber();
+        _base = _base.getInverseNumber();
 
     int numerator = (int) ::pow(_base.getNumerator(), ::abs(exponentInteger));
     int denominator = (int) ::pow(_base.getDenominator(), ::abs(exponentInteger));
 
-    RationalNumber number(numerator, denominator);
-    number.simplify();
-    return number;
+    return RationalNumber(numerator, denominator);
 }
 
 int RationalNumber::getNumerator() const {
