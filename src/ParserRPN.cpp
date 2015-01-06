@@ -191,20 +191,6 @@ bool ParserRPN::isParenthesis(const std::string &token) {
     return token == "(" || token == ")";
 }
 
-bool ParserRPN::isOperator(const Token &token) {
-    return token.type & TOKEN_MASK_IS_OPERATOR;
-}
-
-bool ParserRPN::isOperator(const std::string &token) {
-    return token == "+"
-            || token == "-"
-            || token == "*"
-            || token == "/"
-            || token == "~"
-            || token == "^";
-}
-
-
 bool ParserRPN::isNegative(const Token &token) {
     return token.type == TokenType::Negative;
 }
@@ -222,6 +208,18 @@ bool ParserRPN::isNegative(std::list<Token> &tokens, std::list<Token>::iterator 
     return left == "(" || isOperator(left);
 }
 
+bool ParserRPN::isOperator(const Token &token) {
+    return token.type & TOKEN_MASK_IS_OPERATOR;
+}
+
+bool ParserRPN::isOperator(const std::string &token) {
+    return token == "+"
+            || token == "-"
+            || token == "*"
+            || token == "/"
+            || token == "~"
+            || token == "^";
+}
 
 bool ParserRPN::isAssociative(const Token &token, TokenBiding biding) {
     return (token.type & TOKEN_MASK_BINDING) == biding;

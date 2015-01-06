@@ -26,11 +26,11 @@ public:
     static bool isParenthesis(const Token &token);
     static bool isParenthesis(const std::string &token);
 
-    static bool isOperator(const Token &token);
-    static bool isOperator(const std::string &token);
-
     static bool isNegative(const Token &token);
     static bool isNegative(std::list<Token> &tokens, std::list<Token>::iterator &iter);
+
+    static bool isOperator(const Token &token);
+    static bool isOperator(const std::string &token);
 
     static bool isAssociative(const Token &token, TokenBiding biding);
 
